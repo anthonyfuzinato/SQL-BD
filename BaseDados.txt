@@ -149,6 +149,13 @@ create table Pt_Aluno(
     data date default getdate()
 ) 
 
+create table imagem(
+	id_imagem int identity(0,1)primary key,
+	caminho varbinary(max) not null,
+	id_exercicio references Exercicio(id_exercicio),
+	descricao text not null
+)
+
 create trigger Atualizar_IMC_Automatico
 on aluno
 after update
@@ -184,4 +191,5 @@ begin
         on treino_atualizado.id_treino = novos_valores.id_treino
     inner join aluno aluno_relacionado
         on aluno_relacionado.nif = novos_valores.cod_aluno;
+
 end;
