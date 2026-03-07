@@ -3,25 +3,27 @@ create table Utilizador(
 	email varchar(100) not null unique check(email like'%@%.%'),
 	nome varchar(150) not null,
 	data_criacao date default getdate(),
-	senha varchar(50) not null,
+	senha varchar(255) not null,
 	morada varchar(100) not null,
 	codigo_postal char(8) not null check (codigo_postal like '[0-9][0-9][0-9][0-9]-[0-9][0-9][0-9]'),
         perfil char(1) not null check(perfil in('a','p','m')),
 	ativo bit not null default 1,
 	token varchar(max),
-	validade_token date() default dateadd(day,getdate(),1)
+	validade_token date default dateadd(day,getdate(),1)
 );
-
+ 
 create table aluno(
 	id int identity (1000,1) not null primary key,
 	nif varchar(9) references utilizador(nif),
 	peso decimal(5,2) check(peso>30),
 	altura decimal(3,2),
 	imc decimal(3,1),
-	data_nascimento date not null check (datediff(year,data_nascimento,getdate()) > 14,
-	sexo char(1) check(sexo in ('f','m')
+	data_nascimento date not null check (datediff(year,data_nascimento,getdate())>14),
+	sexo char(1) check(sexo in ('f','m')),
+	objetivo varchar(50),
+ 
 );
-
+ 
 create table PT (
     id int identity (2000,1) not null primary key,
     nif varchar(9) not null references utilizador(nif),
@@ -29,54 +31,61 @@ create table PT (
     experiencia text,
     avaliacao decimal(2,1) check (avaliacao between 0 and 5) default 0,
     preco smallmoney,
-	ft_perfil text,
 );
-
-
+ 
+ 
 create table Administrador(
 	id_adm int identity (3000,1) not null primary key,
-	nif char(9) references utilizador(nif),
+	nif varchar(9) references utilizador(nif),
 	super bit default 0
 );
-
+ 
 create table Treino (
     id_treino int identity(1,1) not null  primary key,
-    cod_aluno char(6) not null references aluno(cod_aluno),  
+    id_aluno int not null references aluno(id),  
     data_treino date default getdate() check (data_treino <= getdate()),
     duracao time not null check (duracao > '00:00'),
     calorias decimal(5,2),
     treino_personalizado bit default 0,
-	descrição varchar(max),
+    descrição varchar(max),
 );
-
+ 
 create table Exercicio(
     id_exercicio int identity not null primary key,
     designacao varchar(100) not null,
-    repeticoes smallint not null,
-    series smallint,
-    carga decimal(5,2) not null,
     peso decimal(5,2),
     grupo_muscular varchar(50) not null,
     equipamento varchar(50),
     descricao text not null,
-    dificuldade varchar(11) not null check(dificuldade in ("fácil","intermédio","dificil")),
+    dificuldade varchar(11) not null check(dificuldade in ('fácil','intermédio','dificil')),
+    pontos 
 )
-
+ 
 create table Conquista(
     id_conquista int identity not null primary key,
     nome varchar(100) not null,
     descricao text not null,
     icone text not null,
-    nivel_conquista varchar(7) not null check(nivel_conquista in ("ouro","prata","bronze"))
+    nivel_conquista varchar(7) not null check(nivel_conquista in ("supremo","diamante","platina","ouro 1","ouro 2","ouro 3","ouro 4","prata 1","prata 2","prata 3","prata 4","bronze 1","bronze 2","bronze 3","bronze 4"))
+ 
 )
-
+ 
+<<<<<< cada treino ganha x de experiencia e«ou pontos , definir quanto é isso pra mudar4 a classificação ou conquista acima
+ 
+<<<experiencia ou pontos depende do exercicio, das repetições, das series e do peso que fez
+pontos por grupo muscular e cada um tem um valor diferente 
+a cada x repetições do exercicio ganha y de pontos
+a cada x series que fez do exercicio ganha y de pontos
+a cada x de peso que levantou do exercicio ganha y de pontos, se o peso for maior do que o do treino anterior ganha x pontos se não ganha metade de x
+ 
+ 
 create table Ginasio (
     id_ginasio int identity not null primary key,
     nome varchar(100) not null,
     localizacao varchar(250) not null, 
     avaliacao decimal(2,1) check(avaliacao between 0 and 5)
 )
-
+ 
 create table Plano_personalizado(
     id_plano int identity not null primary key,
     objetivo varchar(150),
@@ -84,13 +93,23 @@ create table Plano_personalizado(
     duracao int check(duracao > 0),
     descricao text not null
 )
-
+ 
 create table Exercicio_Treino(
     id_exercicio_treino int identity primary key,
     id_exercicio references Exercicio(id_exercicio),
     id_treino references Treino(id_treino)
 )
-
+ 
+create table Exercicio_Treino_Aluno(
+	id_E_T_A int identity primary key,
+	id_exercicio int not null references Exercicio(id_exercicio),
+	id_treino int not null references Treino(id_treino),
+	id_aluno int not null references Aluno(id_aluno),
+	repeticoes smallint not null,
+	series smallint,
+	carga decimal(5,2) not null,
+)
+ 
 create table Plano_treino_Aluno( 
     id_t_a int identity not null primary key, 
     id_plano references Plano(id_plano),
@@ -98,28 +117,28 @@ create table Plano_treino_Aluno(
     dta_inicio date,
     dta_fim date, 
 )
-
+ 
 create table Aluno_Conquista(
     id_aluno_conquista int identity primary key,
     id_conquista references Conquista(id_conquista),
     id_aluno references aluno(id_aluno),
     dta date default getdate()
 )
-
+ 
 create table Pt_Ginasio(
     id_pt_ginasio int identity primary key,
     id_pt references PT(id_pt),
     id_ginasio references Ginasio(id_ginasio),
     daa_admissao date,
 )
-
+ 
 create table Treino_Plano(
     id_treino_plano int identity primary key,
     id_plano references Plano(id_plano),
     id_treino references Treino(id_treino),
     feito_correto BIT default true
 )
-
+ 
 create table Adm_Ginasio(
     id_adm_ginasio int identity primary key,
     id_adm references Administrador(id_adm),
@@ -127,13 +146,13 @@ create table Adm_Ginasio(
     dta_atribuicao date default getdate(),
     permissao_total bit default true
 )
-
+ 
 create table Especialidade(
     id_especialidade int identity primary key,
     nome varchar(100) not null,
     descricao text
 )
-
+ 
 create table Pt_Especialidade(
     id_pt_especialidade int identity primary key,
     id_pt references PT(id_pt),
@@ -141,14 +160,14 @@ create table Pt_Especialidade(
     certificado bit default 0,
     data_certificacao date
 )
-
+ 
 create table Pt_Aluno(
     id_pt_aluno int primary key,
     id_pt references PT(id_pt),
     id_aluno references Aluno(id_aluno),
     data date default getdate()
-) 
-
+)
+ 
 create table imagem(
 	id_imagem int identity(0,1)primary key,
 	caminho varbinary(max) not null,
@@ -193,3 +212,4 @@ begin
         on aluno_relacionado.nif = novos_valores.cod_aluno;
 
 end;
+
