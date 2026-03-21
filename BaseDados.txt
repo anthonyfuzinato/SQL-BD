@@ -66,7 +66,7 @@ create table Conquista(
     nome varchar(100) not null,
     descricao text not null,
     icone text not null,
-    nivel_conquista varchar(7) not null check(nivel_conquista in ("supremo","diamante","platina","ouro 1","ouro 2","ouro 3","ouro 4","prata 1","prata 2","prata 3","prata 4","bronze 1","bronze 2","bronze 3","bronze 4"))
+    nivel_conquista varchar(20) not null check(nivel_conquista in ("supremo","diamante","platina","ouro 1","ouro 2","ouro 3","ouro 4","prata 1","prata 2","prata 3","prata 4","bronze 1","bronze 2","bronze 3","bronze 4"))
  
 )
  
